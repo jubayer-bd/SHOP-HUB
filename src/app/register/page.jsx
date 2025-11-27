@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useEffect, useState, Suspense } from "react";
+import React, { useContext, useState } from "react";
 import toast from "react-hot-toast";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
@@ -15,13 +15,10 @@ import Cookies from "js-cookie";
 import { app } from "@/Firebase/Firebase.config";
 import { AuthContext } from "@/providers/AuthProvider";
 import { useRouter } from "next/navigation";
-import Loading from "@/Components/Loading";
 
-const RegisterForm = () => {
+const RegisterPage = () => {
   const { createUser, setLoading, setUser } = useContext(AuthContext);
-
   const router = useRouter();
-
   const auth = getAuth(app);
   const googleProvider = new GoogleAuthProvider();
 
@@ -74,26 +71,25 @@ const RegisterForm = () => {
 
       setUser(updatedUser);
 
-      // Set auth cookie for middleware
+      // Save token in cookies
       const token = await res.user.getIdToken();
       Cookies.set("firebase_token", token, { expires: 1, secure: true });
 
       toast.success("🎉 Registration successful!");
-
-      router.push("/"); // redirect to home ALWAYS
+      router.push("/");
     } catch (error) {
-      let errorMessage = error.message;
+      let msg = error.message;
       if (error.code === "auth/email-already-in-use") {
-        errorMessage = "This email is already registered.";
+        msg = "This email is already registered.";
       }
-      toast.error(errorMessage);
+      toast.error(msg);
     } finally {
       setBtnLoading(false);
       setLoading(false);
     }
   };
 
-  // Google Login
+  // Google Sign In
   const handleGoogleSignIn = async () => {
     try {
       const res = await signInWithPopup(auth, googleProvider);
@@ -104,138 +100,125 @@ const RegisterForm = () => {
       Cookies.set("firebase_token", token, { expires: 1, secure: true });
 
       toast.success("🎉 Logged in with Google!");
-      router.push("/"); // redirect to home ALWAYS
+      router.push("/");
     } catch (error) {
       toast.error(error.message || "Google login failed");
     }
   };
 
   return (
-    <div className="w-full max-w-md bg-base-100 shadow-xl rounded-2xl p-8">
-      <h2 className="text-3xl font-bold text-center mb-6">Sign Up</h2>
+    <div className="min-h-screen flex items-center justify-center bg-base-200 p-4">
+      <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8">
+        <h2 className="text-3xl font-bold text-center mb-6">
+          Create an Account
+        </h2>
 
-      <form onSubmit={handleRegister} className="space-y-4">
-        {/* Name */}
-        <div>
-          <label className="label">
-            <span className="label-text font-medium">Name</span>
-          </label>
-          <input
-            type="text"
-            className="input input-bordered w-full"
-            placeholder="Enter full name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-
-        {/* Photo URL */}
-        <div>
-          <label className="label">
-            <span className="label-text font-medium">Photo URL</span>
-          </label>
-          <input
-            type="text"
-            className="input input-bordered w-full"
-            placeholder="Enter photo URL"
-            value={photo}
-            onChange={(e) => setPhoto(e.target.value)}
-          />
-        </div>
-
-        {/* Email */}
-        <div>
-          <label className="label">
-            <span className="label-text font-medium">Email</span>
-          </label>
-          <input
-            type="email"
-            className="input input-bordered w-full"
-            placeholder="Enter email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        {/* Password */}
-        <div>
-          <label className="label">
-            <span className="label-text font-medium">Password</span>
-          </label>
-
-          <div className="relative">
+        <form onSubmit={handleRegister} className="space-y-4">
+          {/* Name */}
+          <div>
+            <label className="label">
+              <span className="label-text font-medium">Full Name</span>
+            </label>
             <input
-              type={showPassword ? "text" : "password"}
-              className="input input-bordered w-full pr-10"
-              placeholder="Enter password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              type="text"
+              className="input input-bordered w-full"
+              placeholder="Enter full name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
             />
-
-            <span
-              className="absolute right-3 top-3 text-xl cursor-pointer"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-            </span>
           </div>
 
-          {passwordError && (
-            <p className="text-red-500 text-sm mt-1">{passwordError}</p>
-          )}
-        </div>
+          {/* Photo URL */}
+          <div>
+            <label className="label">
+              <span className="label-text font-medium">Photo URL</span>
+            </label>
+            <input
+              type="text"
+              className="input input-bordered w-full"
+              placeholder="Enter profile picture URL"
+              value={photo}
+              onChange={(e) => setPhoto(e.target.value)}
+            />
+          </div>
 
-        {/* Submit */}
+          {/* Email */}
+          <div>
+            <label className="label">
+              <span className="label-text font-medium">Email Address</span>
+            </label>
+            <input
+              type="email"
+              className="input input-bordered w-full"
+              placeholder="Enter email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="label">
+              <span className="label-text font-medium">Password</span>
+            </label>
+
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                className="input input-bordered w-full pr-12"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+
+              <span
+                className="absolute right-3 top-3 text-xl cursor-pointer"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+              </span>
+            </div>
+
+            {passwordError && (
+              <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={btnLoading}
+            className="btn btn-primary w-full"
+          >
+            {btnLoading ? "Registering..." : "Register"}
+          </button>
+        </form>
+
+        <div className="divider">or</div>
+
+        {/* Google Login */}
         <button
-          type="submit"
-          disabled={btnLoading}
-          className="btn btn-primary w-full"
+          onClick={handleGoogleSignIn}
+          className="btn btn-outline w-full flex items-center justify-center gap-2"
         >
-          {btnLoading ? "Registering..." : "Register"}
+          <FcGoogle className="text-2xl" />
+          Continue with Google
         </button>
-      </form>
 
-      <div className="divider">or</div>
-
-      {/* Google */}
-      <button
-        onClick={handleGoogleSignIn}
-        className="btn btn-outline w-full flex items-center justify-center gap-2"
-      >
-        <FcGoogle className="text-2xl" /> Continue with Google
-      </button>
-
-      {/* Login */}
-      <p className="text-center text-sm mt-4">
-        Already have an account?{" "}
-        <span
-          className="text-primary hover:underline cursor-pointer"
-          onClick={() => router.push("/login")}
-        >
-          Login here
-        </span>
-      </p>
+        <p className="text-center text-sm mt-4">
+          Already have an account?{" "}
+          <span
+            className="text-primary cursor-pointer hover:underline"
+            onClick={() => router.push("/login")}
+          >
+            Login here
+          </span>
+        </p>
+      </div>
     </div>
   );
 };
 
-const Register = () => {
-  const [pageLoading, setPageLoading] = useState(true);
-
- 
-
-  if (pageLoading) return <Loading />;
-
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-base-200 px-4">
-      <Suspense fallback={<Loading />}>
-        <RegisterForm />
-      </Suspense>
-    </div>
-  );
-};
-
-export default Register;
+export default RegisterPage;
