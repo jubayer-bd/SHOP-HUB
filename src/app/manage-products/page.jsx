@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import Swal from "sweetalert2"; // 🚨 REQUIRED: Ensure you install sweetalert2
+import Swal from "sweetalert2"; // Ensure you installed sweetalert2
 
 const API_URL = "https://e-comerce-server.vercel.app/products";
 
@@ -11,10 +11,8 @@ export default function ManageProductsPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // State for deletion
   const [deletingId, setDeletingId] = useState(null);
 
-  // State for editing (Modal)
   const [editingProduct, setEditingProduct] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -37,7 +35,7 @@ export default function ManageProductsPage() {
     fetchProducts();
   }, []);
 
-  // --- DELETE LOGIC (UPDATED WITH SWEETALERT2) ---
+  // --- DELETE LOGIC ---
   const handleDelete = async (id) => {
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -52,12 +50,9 @@ export default function ManageProductsPage() {
     if (result.isConfirmed) {
       setDeletingId(id);
       try {
-        const response = await fetch(`${API_URL}/${id}`, {
-          method: "DELETE",
-        });
+        const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
 
         if (response.ok) {
-          // Success toast and local state update
           toast.success("Product successfully deleted! 🗑️");
           setProducts((prev) => prev.filter((p) => (p._id || p.id) !== id));
         } else {
@@ -73,22 +68,14 @@ export default function ManageProductsPage() {
   };
 
   // --- EDIT MODAL LOGIC ---
-  const handleEditClick = (product) => {
-    // Ensure we copy the product to avoid modifying state directly
-    setEditingProduct({ ...product });
-  };
-
-  const closeEditModal = () => {
-    setEditingProduct(null);
-  };
+  const handleEditClick = (product) => setEditingProduct({ ...product });
+  const closeEditModal = () => setEditingProduct(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditingProduct((prev) => ({
       ...prev,
-      [name]: value,
-      // Ensure price is stored as a number
-      ...(name === "price" && { price: parseFloat(value) || 0 }),
+      [name]: name === "price" ? Number(value) : value,
     }));
   };
 
@@ -99,28 +86,30 @@ export default function ManageProductsPage() {
     const id = editingProduct._id || editingProduct.id;
 
     try {
-      // Create a copy of the product data without the ID field for the payload
       const { _id, id: tempId, ...updatePayload } = editingProduct;
 
       const response = await fetch(`${API_URL}/${id}`, {
-        method: "PATCH",
+        method: "PATCH", // or "PUT" depending on your backend
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatePayload),
       });
 
+      const data = await response.json();
+      console.log("Update response:", data);
+
       if (response.ok) {
         toast.success("Product updated successfully! 🎉");
 
-        // Update local state UI immediately
+        // Update local state UI
         setProducts((prev) =>
           prev.map((p) => {
             const pId = p._id || p.id;
-            return pId === id ? { ...p, ...editingProduct } : p;
+            return pId === id ? { ...p, ...updatePayload, _id: id } : p;
           })
         );
         closeEditModal();
       } else {
-        toast.error("Failed to update product.");
+        toast.error(data?.message || "Failed to update product.");
       }
     } catch (error) {
       console.error("Update error:", error);
@@ -140,7 +129,6 @@ export default function ManageProductsPage() {
     );
   }
 
-  // Common class for inputs in the modal
   const modalInputClass =
     "mt-1 block w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-500 focus:border-blue-500 transition-all";
   const modalLabelClass = "block text-sm font-medium text-gray-700";
@@ -241,7 +229,7 @@ export default function ManageProductsPage() {
                                   : "bg-green-100 text-green-700"
                               }`}
                             >
-                              {product.priority}
+                              {product.priority || "medium"}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-right flex gap-3 justify-end items-center">
@@ -268,7 +256,7 @@ export default function ManageProductsPage() {
                 </table>
               </div>
 
-              {/* MOBILE VIEW (Card List) */}
+              {/* MOBILE VIEW */}
               <div className="md:hidden divide-y divide-gray-200">
                 {products.map((product) => {
                   const id = product._id || product.id;
@@ -303,7 +291,7 @@ export default function ManageProductsPage() {
                               : "bg-green-100 text-green-700"
                           }`}
                         >
-                          {product.priority}
+                          {product.priority || "medium"}
                         </span>
                         <button
                           onClick={() => handleEditClick(product)}
@@ -328,7 +316,7 @@ export default function ManageProductsPage() {
         </div>
       </main>
 
-      {/* --- EDIT MODAL (The good modal) --- */}
+      {/* --- EDIT MODAL WITH LIVE IMAGE PREVIEW --- */}
       {editingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-3xl w-full max-w-xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-100 opacity-100">
@@ -346,7 +334,7 @@ export default function ManageProductsPage() {
               </div>
 
               <form onSubmit={handleUpdate} className="space-y-5">
-                {/* Image URL & Preview */}
+                {/* Image URL & Live Preview */}
                 <div className="flex items-center gap-4">
                   {editingProduct.image && (
                     <img
@@ -363,11 +351,12 @@ export default function ManageProductsPage() {
                       value={editingProduct.image || ""}
                       onChange={handleInputChange}
                       className={modalInputClass}
+                      placeholder="https://example.com/image.jpg"
                     />
                   </div>
                 </div>
 
-                {/* Title and Description */}
+                {/* Title & Description */}
                 <div>
                   <label className={modalLabelClass}>Title</label>
                   <input
@@ -392,7 +381,6 @@ export default function ManageProductsPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  {/* Price */}
                   <div>
                     <label className={modalLabelClass}>Price ($)</label>
                     <input
@@ -406,7 +394,6 @@ export default function ManageProductsPage() {
                     />
                   </div>
 
-                  {/* Category */}
                   <div>
                     <label className={modalLabelClass}>Category</label>
                     <input
@@ -419,7 +406,6 @@ export default function ManageProductsPage() {
                   </div>
                 </div>
 
-                {/* Priority */}
                 <div>
                   <label className={modalLabelClass}>Priority</label>
                   <select
