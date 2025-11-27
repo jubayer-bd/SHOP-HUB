@@ -27,10 +27,10 @@ export default function Navbar() {
       : "text-gray-600 hover:text-blue-600 transition-colors";
 
   // Helper for mobile link styles (Sleeker, smaller text)
-  const mobileLinkStyle = (route) => 
+  const mobileLinkStyle = (route) =>
     `block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-      pathname === route 
-        ? "bg-blue-50 text-blue-600" 
+      pathname === route
+        ? "bg-blue-50 text-blue-600"
         : "text-gray-700 hover:bg-gray-50 hover:text-blue-600"
     }`;
 
@@ -49,7 +49,6 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          
           {/* --- Logo (Adjusted size for mobile/desktop) --- */}
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl md:text-2xl font-bold text-blue-600 tracking-tight">
@@ -59,17 +58,28 @@ export default function Navbar() {
 
           {/* --- Desktop Nav (Hidden on Mobile/Tablet) --- */}
           <div className="hidden lg:flex items-center space-x-8 text-sm font-medium">
-            <Link href="/" className={isActive("/")}>Home</Link>
-            <Link href="/products" className={isActive("/products")}>Products</Link>
-            <Link href="/about" className={isActive("/about")}>About</Link>
-            <Link href="/contact" className={isActive("/contact")}>Contact</Link>
-
+            <Link href="/" className={isActive("/")}>
+              Home
+            </Link>
+            <Link href="/products" className={isActive("/products")}>
+              Products
+            </Link>
             {user && (
               <>
-                <Link href="/wishlist" className={isActive("/wishlist")}>Wishlist</Link>
-                <Link href="/cart" className={isActive("/cart")}>Cart</Link>
+                <Link href="/wishlist" className={isActive("/wishlist")}>
+                  Wishlist
+                </Link>
+                <Link href="/cart" className={isActive("/cart")}>
+                  Cart
+                </Link>
               </>
             )}
+            <Link href="/about" className={isActive("/about")}>
+              About
+            </Link>
+            <Link href="/contact" className={isActive("/contact")}>
+              Contact
+            </Link>
           </div>
 
           {/* --- Auth Section (Desktop) --- */}
@@ -102,14 +112,33 @@ export default function Navbar() {
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-56 bg-white shadow-xl rounded-xl py-2 border border-gray-100 z-50 animate-fadeIn">
                     <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
-                      <p className="text-sm font-bold text-gray-900">{user?.displayName}</p>
-                      <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                      <p className="text-sm font-bold text-gray-900">
+                        {user?.displayName}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {user?.email}
+                      </p>
                     </div>
 
                     <div className="py-2">
-                      <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Profile</Link>
-                      <Link href="/add-product" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Add Product</Link>
-                      <Link href="/manage-products" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Manage Products</Link>
+                      <Link
+                        href="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        Profile
+                      </Link>
+                      <Link
+                        href="/add-product"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        Add Product
+                      </Link>
+                      <Link
+                        href="/manage-products"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        Manage Products
+                      </Link>
                     </div>
 
                     <div className="border-t border-gray-100 mt-1 pt-1">
@@ -125,10 +154,16 @@ export default function Navbar() {
               </div>
             ) : (
               <div className="flex gap-3">
-                <Link href="/login" className="px-5 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition">
+                <Link
+                  href="/login"
+                  className="px-5 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition"
+                >
                   Login
                 </Link>
-                <Link href="/register" className="px-5 py-2 text-sm font-medium bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-sm transition">
+                <Link
+                  href="/register"
+                  className="px-5 py-2 text-sm font-medium bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-sm transition"
+                >
                   Register
                 </Link>
               </div>
@@ -137,7 +172,7 @@ export default function Navbar() {
 
           {/* --- Mobile Menu Button --- */}
           <div className="lg:hidden flex items-center">
-             {/* Show mini cart icon here if desired, otherwise just the burger */}
+            {/* Show mini cart icon here if desired, otherwise just the burger */}
             <button
               onClick={() => setMobileMenu(!mobileMenu)}
               className="p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none"
@@ -152,24 +187,79 @@ export default function Navbar() {
       {mobileMenu && (
         <div className="lg:hidden bg-white border-t border-gray-100 shadow-lg absolute w-full left-0 z-40 max-h-[90vh] overflow-y-auto">
           <div className="px-4 pt-2 pb-6 space-y-1">
-            
             {/* 1. Main Navigation */}
-            <Link href="/" onClick={() => setMobileMenu(false)} className={mobileLinkStyle("/")}>Home</Link>
-            <Link href="/products" onClick={() => setMobileMenu(false)} className={mobileLinkStyle("/products")}>Products</Link>
-            <Link href="/about" onClick={() => setMobileMenu(false)} className={mobileLinkStyle("/about")}>About</Link>
-            <Link href="/contact" onClick={() => setMobileMenu(false)} className={mobileLinkStyle("/contact")}>Contact</Link>
+            <Link
+              href="/"
+              onClick={() => setMobileMenu(false)}
+              className={mobileLinkStyle("/")}
+            >
+              Home
+            </Link>
+            <Link
+              href="/products"
+              onClick={() => setMobileMenu(false)}
+              className={mobileLinkStyle("/products")}
+            >
+              Products
+            </Link>
+            <Link
+              href="/about"
+              onClick={() => setMobileMenu(false)}
+              className={mobileLinkStyle("/about")}
+            >
+              About
+            </Link>
+            <Link
+              href="/contact"
+              onClick={() => setMobileMenu(false)}
+              className={mobileLinkStyle("/contact")}
+            >
+              Contact
+            </Link>
 
             {/* 2. User Specific Links (Added Add/Manage here) */}
             {user && (
               <div className="mt-4 pt-4 border-t border-gray-100">
-                <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Account</p>
-                <Link href="/profile" onClick={() => setMobileMenu(false)} className={mobileLinkStyle("/profile")}>Profile</Link>
-                <Link href="/wishlist" onClick={() => setMobileMenu(false)} className={mobileLinkStyle("/wishlist")}>Wishlist</Link>
-                <Link href="/cart" onClick={() => setMobileMenu(false)} className={mobileLinkStyle("/cart")}>Cart</Link>
-                
+                <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                  Account
+                </p>
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileMenu(false)}
+                  className={mobileLinkStyle("/profile")}
+                >
+                  Profile
+                </Link>
+                <Link
+                  href="/wishlist"
+                  onClick={() => setMobileMenu(false)}
+                  className={mobileLinkStyle("/wishlist")}
+                >
+                  Wishlist
+                </Link>
+                <Link
+                  href="/cart"
+                  onClick={() => setMobileMenu(false)}
+                  className={mobileLinkStyle("/cart")}
+                >
+                  Cart
+                </Link>
+
                 {/* --- ADDED MISSING ROUTES --- */}
-                <Link href="/add-product" onClick={() => setMobileMenu(false)} className={mobileLinkStyle("/add-product")}>Add Product</Link>
-                <Link href="/manage-products" onClick={() => setMobileMenu(false)} className={mobileLinkStyle("/manage-products")}>Manage Products</Link>
+                <Link
+                  href="/add-product"
+                  onClick={() => setMobileMenu(false)}
+                  className={mobileLinkStyle("/add-product")}
+                >
+                  Add Product
+                </Link>
+                <Link
+                  href="/manage-products"
+                  onClick={() => setMobileMenu(false)}
+                  className={mobileLinkStyle("/manage-products")}
+                >
+                  Manage Products
+                </Link>
               </div>
             )}
 
@@ -194,14 +284,26 @@ export default function Navbar() {
                 </div>
               ) : (
                 <div className="px-3 pb-2">
-                   {/* User info snippet for mobile */}
-                   <div className="flex items-center gap-3 mb-4 p-2 bg-gray-50 rounded-lg">
-                      {user?.photoURL && <Image src={user.photoURL} width={30} height={30} className="rounded-full" alt="nav-user"/>}
-                      <div className="overflow-hidden">
-                        <p className="text-sm font-medium text-gray-900 truncate">{user?.displayName}</p>
-                        <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-                      </div>
-                   </div>
+                  {/* User info snippet for mobile */}
+                  <div className="flex items-center gap-3 mb-4 p-2 bg-gray-50 rounded-lg">
+                    {user?.photoURL && (
+                      <Image
+                        src={user.photoURL}
+                        width={30}
+                        height={30}
+                        className="rounded-full"
+                        alt="nav-user"
+                      />
+                    )}
+                    <div className="overflow-hidden">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {user?.displayName}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {user?.email}
+                      </p>
+                    </div>
+                  </div>
                   <button
                     onClick={handleSignOut}
                     className="w-full flex justify-center items-center px-4 py-2 border border-red-200 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 transition"
@@ -211,7 +313,6 @@ export default function Navbar() {
                 </div>
               )}
             </div>
-            
           </div>
         </div>
       )}

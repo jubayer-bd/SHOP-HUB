@@ -112,8 +112,7 @@ const LoginForm = () => {
           <span
             type="button"
             className="text-sm text-primary hover:underline cursor-pointer"
-            // Note: Update this to router.push if you implement the page
-            // onClick={() => router.push("/forgot-password")}
+            onClick={() => router.push(`/forget-password`)}
           >
             Forgot Password?
           </span>
@@ -158,7 +157,6 @@ const LoginForm = () => {
 const Login = () => {
   const [pageLoading, setPageLoading] = useState(true);
 
- 
   useEffect(() => {
     const timer = setTimeout(() => setPageLoading(false), 800);
     return () => clearTimeout(timer);
