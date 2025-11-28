@@ -21,6 +21,7 @@ export default function ProductsPage() {
 
   // Filters
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState(""); // New state for debounce
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   // Pagination
@@ -31,6 +32,22 @@ export default function ProductsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
 
+  // 1. Handle Search Debounce
+  // Waists 500ms after user stops typing before triggering the search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // 2. Reset Page on Filter Change
+  // When category or search changes, always go back to page 1
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, selectedCategory]);
+
   // Fetch products from back-end
   const fetchProducts = async () => {
     try {
@@ -39,7 +56,7 @@ export default function ProductsPage() {
       const query = new URLSearchParams({
         page: currentPage,
         limit: itemsPerPage,
-        search: searchTerm,
+        search: debouncedSearch, // Use the debounced value
         category: selectedCategory,
       });
 
@@ -50,12 +67,21 @@ export default function ProductsPage() {
       setTotalProducts(data.totalProducts || 0);
       setTotalPages(data.totalPages || 1);
 
-      // Generate categories from returned products
-      const unique = [
-        "all",
-        ...new Set((data.data || []).map((p) => p.category || "uncategorized")),
-      ];
-      setCategories(unique);
+      // FIX: Only update categories if we are viewing "all"
+      // This prevents other categories from disappearing from the dropdown
+      // when you select a specific one.
+      if (selectedCategory === "all") {
+        const unique = [
+          "all",
+          ...new Set(
+            (data.data || []).map((p) => p.category || "uncategorized")
+          ),
+        ];
+        // Only update if we actually found categories to prevent empty dropdowns on loading errors
+        if (unique.length > 1) {
+          setCategories(unique);
+        }
+      }
     } catch (err) {
       console.error("Error fetching products:", err);
     } finally {
@@ -63,27 +89,19 @@ export default function ProductsPage() {
     }
   };
 
-  // Re-fetch on filter/pagination change
+  // Re-fetch when dependencies change
+  // Note: We use debouncedSearch here, not the raw searchTerm
   useEffect(() => {
     fetchProducts();
-  }, [searchTerm, selectedCategory, currentPage]);
+  }, [debouncedSearch, selectedCategory, currentPage]);
 
   // Scroll to top on page change
   const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-500 font-medium">Loading products...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-800">
@@ -94,7 +112,8 @@ export default function ProductsPage() {
             Our Collection
           </h1>
           <p className="mt-2 text-lg text-gray-600 max-w-2xl">
-            Browse our curated list of top-quality products designed just for you.
+            Browse our curated list of top-quality products designed just for
+            you.
           </p>
         </div>
 
@@ -109,10 +128,7 @@ export default function ProductsPage() {
               type="text"
               placeholder="Search products..."
               value={searchTerm}
-              onChange={(e) => {
-                setCurrentPage(1);
-                setSearchTerm(e.target.value);
-              }}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
             />
           </div>
@@ -124,10 +140,7 @@ export default function ProductsPage() {
             </div>
             <select
               value={selectedCategory}
-              onChange={(e) => {
-                setCurrentPage(1);
-                setSelectedCategory(e.target.value);
-              }}
+              onChange={(e) => setSelectedCategory(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer outline-none"
             >
               {categories.map((cat) => (
@@ -140,7 +153,14 @@ export default function ProductsPage() {
         </div>
 
         {/* Products Grid */}
-        {products.length === 0 ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-gray-500 font-medium mt-4">
+              Loading products...
+            </p>
+          </div>
+        ) : products.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl shadow-sm border border-gray-200">
             <FaBoxOpen className="text-6xl text-gray-300 mb-4" />
             <h3 className="text-xl font-semibold text-gray-900">
@@ -186,7 +206,7 @@ export default function ProductsPage() {
                       {product.title}
                     </h3>
                     <p className="mt-2 text-sm text-gray-500 line-clamp-2 h-10 leading-relaxed">
-                      {product.shortDescription}
+                      {product.shortDescription || product.description}
                     </p>
                   </div>
 
@@ -205,7 +225,7 @@ export default function ProductsPage() {
         )}
 
         {/* Pagination */}
-        {totalPages > 1 && (
+        {!loading && totalPages > 1 && (
           <div className="mt-12 flex flex-col items-center gap-4">
             <div className="text-sm text-gray-500">
               Page <span className="font-medium">{currentPage}</span> of{" "}
