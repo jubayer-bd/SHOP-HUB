@@ -2,8 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-
 import Image from "next/image";
+import {
+  FaSearch,
+  FaFilter,
+  FaChevronLeft,
+  FaChevronRight,
+  FaBoxOpen,
+} from "react-icons/fa";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -15,21 +21,21 @@ export default function ProductsPage() {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8; // number of products per page
+  const itemsPerPage = 8;
 
   // Fetch products
   const fetchProducts = async () => {
     try {
       const res = await fetch("https://e-comerce-server.vercel.app/products");
       const data = await res.json();
-      console.log(data.data);
+
+      // Ensure we access the array correctly based on your API response structure
       const productsArray = Array.isArray(data.data) ? data.data : [];
 
       setProducts(productsArray);
-      // console.log(productsArray)
       setFilteredProducts(productsArray);
 
-      // category list
+      // Generate unique categories
       const unique = [
         "all",
         ...new Set(productsArray.map((p) => p.category || "uncategorized")),
@@ -66,7 +72,7 @@ export default function ProductsPage() {
     }
 
     setFilteredProducts(filtered);
-    setCurrentPage(1); // reset page when filter/search changes
+    setCurrentPage(1); // Reset to page 1 on filter change
   }, [searchTerm, selectedCategory, products]);
 
   // Pagination calculations
@@ -78,146 +84,181 @@ export default function ProductsPage() {
   );
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
+  // Scroll to top when page changes
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col">
-      
-        <div className="flex-grow flex items-center justify-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-500 font-medium">Loading products...</p>
         </div>
-        
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-    
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-800">
+      <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        {/* Header Section */}
+        <div className="mb-10 text-center sm:text-left">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
+            Our Collection
+          </h1>
+          <p className="mt-2 text-lg text-gray-600 max-w-2xl">
+            Browse our curated list of top-quality products designed just for
+            you.
+          </p>
+        </div>
 
-      <main className="flex-grow py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              Our Products
-            </h1>
-            <p className="text-gray-600">
-              Discover our wide range of quality products
-            </p>
-          </div>
-
-          {/* Search + Category */}
-          <div className="mb-8 flex flex-col md:flex-row gap-4 text-black">
+        {/* Filter & Search Bar */}
+        <div className="mb-8 bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row gap-4 items-center justify-between">
+          {/* Search Input */}
+          <div className="relative w-full md:w-96">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaSearch className="text-gray-400" />
+            </div>
             <input
               type="text"
               placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
             />
+          </div>
 
+          {/* Category Dropdown */}
+          <div className="relative w-full md:w-64">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaFilter className="text-gray-400" />
+            </div>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer outline-none"
             >
               {categories.map((cat) => (
-                <option key={cat} value={cat}>
+                <option key={cat} value={cat} className="capitalize">
                   {cat === "all" ? "All Categories" : cat}
                 </option>
               ))}
             </select>
           </div>
+        </div>
 
-          {/* Products Grid */}
-          {currentItems.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 text-lg">
+        {/* Products Grid */}
+        {currentItems.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl shadow-sm border border-gray-200">
+            <FaBoxOpen className="text-6xl text-gray-300 mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900">
               No products found
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {currentItems.map((product) => (
-                <Link
-                  key={product._id}
-                  href={`/products/${product._id}`}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow group"
-                >
-                  {/* Image */}
-                  <div className="relative h-48 bg-gray-200 overflow-hidden">
-                    {product.image ? (
-                      <Image
-                        src={product.image}
-                        alt={product.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        No Image
-                      </div>
-                    )}
+            </h3>
+            <p className="text-gray-500 mt-2">
+              Try adjusting your search or filters.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {currentItems.map((product) => (
+              <Link
+                key={product._id}
+                href={`/products/${product._id}`}
+                className="group flex flex-col bg-white rounded-2xl shadow-sm hover:shadow-xl border border-gray-200 overflow-hidden transition-all duration-300 hover:-translate-y-1 h-full"
+              >
+                {/* Image Container */}
+                <div className="relative h-64 w-full bg-gray-100 overflow-hidden">
+                  {product.image ? (
+                    <Image
+                      src={product.image}
+                      alt={product.title}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <FaBoxOpen className="text-4xl" />
+                    </div>
+                  )}
+                  {/* Badge */}
+                  <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-blue-700 shadow-sm uppercase tracking-wide">
+                    {product.category}
                   </div>
+                </div>
 
-                  {/* Text */}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-lg mb-2 line-clamp-1 text-blue-600 ">
+                {/* Content */}
+                <div className="p-5 flex flex-col flex-grow">
+                  <div className="flex-grow">
+                    <h3 className="text-lg font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
                       {product.title}
                     </h3>
-                    <p className="text-gray-600 text-sm  line-clamp-2 h-12">
+                    <p className="mt-2 text-sm text-gray-500 line-clamp-2 h-10 leading-relaxed">
                       {product.shortDescription}
                     </p>
+                  </div>
 
-                    <div className="flex items-center justify-between">
-                      <p className="text-blue-600 font-bold text-xl">
-                        ${product.price}
-                      </p>
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                        {product.category}
-                      </span>
-                    </div>
-
-                    <button className="mt-4 w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <span className="text-2xl font-bold text-gray-900">
+                      ${product.price}
+                    </span>
+                    <button className="px-4 py-2 bg-blue-50 text-blue-600 text-sm font-medium rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
                       View Details
                     </button>
                   </div>
-                </Link>
-              ))}
-            </div>
-          )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-4 text-black mt-10">
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-12 flex flex-col items-center gap-4">
+            <span className="text-sm text-gray-500">
+              Showing{" "}
+              <span className="font-medium text-gray-900">
+                {indexOfFirstItem + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-medium text-gray-900">
+                {Math.min(indexOfLastItem, filteredProducts.length)}
+              </span>{" "}
+              of{" "}
+              <span className="font-medium text-gray-900">
+                {filteredProducts.length}
+              </span>{" "}
+              results
+            </span>
+
+            <div className="inline-flex items-center gap-2 bg-white p-2 rounded-lg shadow-sm border border-gray-200">
               <button
                 disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => prev - 1)}
-                className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+                onClick={() => handlePageChange(currentPage - 1)}
+                className="p-2 rounded-md hover:bg-gray-100 text-gray-600 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
               >
-                Prev
+                <FaChevronLeft size={16} />
               </button>
 
-              <span>
+              {/* Simple logic to show current page context */}
+              <div className="flex items-center px-4 font-medium text-gray-900">
                 Page {currentPage} of {totalPages}
-              </span>
+              </div>
 
               <button
                 disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((prev) => prev + 1)}
-                className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+                onClick={() => handlePageChange(currentPage + 1)}
+                className="p-2 rounded-md hover:bg-gray-100 text-gray-600 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
               >
-                Next
+                <FaChevronRight size={16} />
               </button>
             </div>
-          )}
-
-          {/* Count */}
-          <div className="mt-8 text-center text-black">
-            Showing {currentItems.length} of {filteredProducts.length} results
           </div>
-        </div>
+        )}
       </main>
-
-    
     </div>
   );
 }
