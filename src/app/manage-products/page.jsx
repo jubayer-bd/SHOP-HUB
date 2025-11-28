@@ -72,7 +72,7 @@ export default function ManageProductsPage() {
   // Fetch products
   const fetchProducts = async () => {
     try {
-      const res = await fetch(API_URL);
+      const res = await fetch('https://e-comerce-server.vercel.app/manage-products');
       const result = await res.json();
       const data = result.data || result;
       setProducts(Array.isArray(data) ? data : []);
