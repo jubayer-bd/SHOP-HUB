@@ -9,7 +9,7 @@ A modern, responsive full-stack e-commerce application built using Next.js on th
 This project is a fully functional e-commerce platform featuring:
 
 ## Live Url
-https://nexuse-store.vercel.app/
+https://shop-hub-coral.vercel.app/
 
 ### Frontend
 - Next.js 14 (App Router)
