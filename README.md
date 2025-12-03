@@ -118,10 +118,6 @@ npm run dev
 | POST | `/cart` | Update cart quantity |
 | DELETE | `/cart/:id` | Remove item from cart |
 
----
-
-## 📸 Screenshots (Optional)
-_Add your screenshots here._
 
 ---
 
