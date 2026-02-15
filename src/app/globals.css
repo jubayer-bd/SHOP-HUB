@@ -41,5 +41,9 @@ body {
 }
 @plugin "daisyui/theme" {
   --color-primary: blue;
-  /* --color-secondary: teal; */
+  --color-shopPink: #F65DAA;
+  --color-shopPurple:#8B5CF6;
+  --color-shopBlue: #2563EB;
+  --color-shopCyan: #06B6D4;
+  
 }

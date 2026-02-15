@@ -50,10 +50,17 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* --- Logo (Adjusted size for mobile/desktop) --- */}
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl md:text-2xl font-bold text-blue-600 tracking-tight">
-              ShopHub
-            </span>
+          <Link href="/" className="flex items-center justify-center ">
+            <Image
+              src="/shophub.png"
+              alt="ShopHub Logo"
+              width={"60"}
+              height={"60"}
+              className="rounded-full"
+            />
+            <h1 class="text-xl md:text-2xl font-bold tracking-tight bg-gradient-to-r from-pink-500 via-purple-500 to-blue-600 bg-clip-text text-transparent">
+              SHOP HUB
+            </h1>
           </Link>
 
           {/* --- Desktop Nav (Hidden on Mobile/Tablet) --- */}
